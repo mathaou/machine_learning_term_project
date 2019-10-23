@@ -1,0 +1,31 @@
+doctype html
+html(lang="en")
+    head
+        title
+            | Term Project
+        link(rel="stylesheet" 
+            href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css" 
+            integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu" 
+            crossorigin="anonymous")
+    body
+        block content
+            div.container-fluid
+                .row.justify-content-center
+                    .col-md-12
+                        h1(style={'text-align': 'center'})
+                            | Tom Jiang and Matt Farstad What-Hand-Does-Our-Neural-Network-Classify-Your-Input-As-ifier!
+                .row
+                    .col-md-6
+                        form.form-horizontal#test(role="form" method="POST" action="/hand")
+                            .form-group
+                                label.col-sm-2.control-label(for='card1') Card1:
+                                .col-sm-10
+                                    input(type="text", list="card1" name="card1")
+                                    datalist#card1
+                                        option
+                                            | ass
+                            button.btn.btn-success#submitbtn(type="submit") Check Hand
+                    .col-md-6
+                        span
+                            p.text-primary
+                                | #{output}

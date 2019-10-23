@@ -52,7 +52,8 @@ class MQTTBroker():
 
         """Any data destined for host from client node"""
         if(msg.topic == self.server_in):
-            self.mqtt.publish(self.client_out, "ass")
+            time.sleep(5)
+            self.mqtt.publish(self.client_out, str(msg.payload.decode("utf-8")))
 
     """On connect handler gets called upon a connection request"""
     def on_connect(self, client, userdata, flags, rc):
