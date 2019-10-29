@@ -43,7 +43,7 @@ class PokerHandANN():
 
             print("Assigning inputs and targets for the remaining 60% of data...")
             # assigning inputs and targets with whats left (60%)
-            (self.inputs, self.targets) = self.createInputsAndTargets(data)
+            (self.inputs, self.targets) = self.createInputsAndTargets(data[0:len(data) - testing_validation_split])
 
             print("Assigning inputs and targets for validation set...")
             # create validation
