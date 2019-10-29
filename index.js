@@ -12,13 +12,16 @@ const express = require("express");
 
 const app = express();
 
+app.use(express.static('public'));
+app.use('/jquery', express.static(__dirname + '/node_modules/jquery/dist/'));
+
 var bodyParser = require('body-parser');
 app.use(bodyParser.json()); // support json encoded bodies
 app.use(bodyParser.urlencoded({ extended: true })); // support encoded bodies
 
 // const fetch = require("node-fetch");
 
-var input = null, output = null;
+var input = null, output = 'Select a hand and see how accurate our algorithm is!';
 
 app.get('/', (req, res) => {
     res.render('index', {
@@ -28,7 +31,13 @@ app.get('/', (req, res) => {
 
 app.post('/hand', (req, res) => {
     input = {
-        card1: req.body.card1
+        "hand":[
+            [req.body.card1, req.body.card1Suit],
+            [req.body.card2, req.body.card2Suit],
+            [req.body.card3, req.body.card3Suit],
+            [req.body.card4, req.body.card4Suit],
+            [req.body.card5, req.body.card5Suit]
+        ]
     };
 
     output = queryNetwork(input, res);

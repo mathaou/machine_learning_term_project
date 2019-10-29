@@ -1,10 +1,12 @@
-#!/usr/bin/env python3
+#!/usr/bin python3
 import paho.mqtt.client as MQTT
 import time
 import json
 
 import traceback
 import re
+
+import hand_classifier as hand
 
 class MQTTBroker():
 
@@ -18,6 +20,8 @@ class MQTTBroker():
     """Location of mqtt broker."""
     broker_url = "localhost"
     broker_port = 1883
+
+    classifier = None
 
     subscription_list = [server_in]
 
@@ -52,8 +56,9 @@ class MQTTBroker():
 
         """Any data destined for host from client node"""
         if(msg.topic == self.server_in):
-            time.sleep(5)
-            self.mqtt.publish(self.client_out, str(msg.payload.decode("utf-8")))
+            # time.sleep(5)
+            self.classifier = hand.HandClassifier(payload=str(msg.payload.decode("utf-8")))
+            self.mqtt.publish(self.client_out, self.classifier.__str__())
 
     """On connect handler gets called upon a connection request"""
     def on_connect(self, client, userdata, flags, rc):

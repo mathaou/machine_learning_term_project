@@ -1,0 +1,11 @@
+.selected {
+    opacity: .5;
+}
+
+.output-text {
+    font-size: 5vh;
+}
+
+#test > * {
+    font-size: 2vh;
+}
