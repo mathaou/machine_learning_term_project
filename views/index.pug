@@ -1,6 +1,8 @@
 doctype html
 html(lang='en')
     head
+        meta(charset='utf-8')
+        meta(name='viewport' content='width=device-width, initial-scale=1')
         title
             | Term Project
         link(rel='stylesheet' 
@@ -14,167 +16,210 @@ html(lang='en')
             div.container-fluid
                 .row.justify-content-center
                     .col-md-12
-                        h1(style={'text-align': 'center'})
+                        h1
                             | Tom Jiang and Matt Farstad What-Hand-Does-Our-Neural-Network-Classify-Your-Input-As-ifier!
                 .row
                     .col-md-6
                         form.form-horizontal#test(role='form' method='POST' action='/hand')
                             .form-group
-                                label.col-sm-2.control-label(for='card1') 1st Card:
-                                .col-sm-10
-                                    select#card1(name="card1" style='margin: 10px;')
-                                        option(value=1) 2
-                                        option(value=2) 3
-                                        option(value=3) 4
-                                        option(value=4) 5
-                                        option(value=5) 6
-                                        option(value=6) 7
-                                        option(value=7) 8
-                                        option(value=8) 9
-                                        option(value=9) 10
-                                        option(value=10) Jack
-                                        option(value=11) Queen
-                                        option(value=12) King
-                                        option(value=13) Ace
-                                    .btn-group(data-toggle='buttons')
-                                        label.btn-secondary.btn(for="card1club")
-                                            input#card1club(type='radio' value="4" name='card1Suit')
-                                            | Club
-                                        label.btn-secondary.btn(for="card1heart")
-                                            input#card1heart(type='radio' value="1" name='card1Suit')
-                                            | Heart
-                                        label.btn-secondary.btn(for="card1spade")
-                                            input#card1spade(type='radio' value="2" name='card1Suit')
-                                            | Spade
-                                        label.btn-secondary.btn(for="card1diamond")
-                                            input#card1diamond(type='radio' value="3" name='card1Suit')
-                                            | Diamond
-                                label.col-sm-2.control-label(for='card2') 2nd Card:
-                                .col-sm-10
-                                    select#card2(name="card2" style='margin: 10px;')
-                                        option(value=1) 2
-                                        option(value=2) 3
-                                        option(value=3) 4
-                                        option(value=4) 5
-                                        option(value=5) 6
-                                        option(value=6) 7
-                                        option(value=7) 8
-                                        option(value=8) 9
-                                        option(value=9) 10
-                                        option(value=10) Jack
-                                        option(value=11) Queen
-                                        option(value=12) King
-                                        option(value=13) Ace
-                                    .btn-group(data-toggle='buttons')
-                                        label.btn-secondary.btn(for="card2club")
-                                            input#card2club(type='radio' value="3" name='card2Suit')
-                                            | Club
-                                        label.btn-secondary.btn(for="card2heart")
-                                            input#card2heart(type='radio' value="1" name='card2Suit')
-                                            | Heart
-                                        label.btn-secondary.btn(for="card2spade")
-                                            input#card2spade(type='radio' value="2" name='card2Suit')
-                                            | Spade
-                                        label.btn-secondary.btn(for="card2diamond")
-                                            input#card2diamond(type='radio' value="3" name='card2Suit')
-                                            | Diamond
-                                label.col-sm-2.control-label(for='card3') 3rd Card:
-                                .col-sm-10
-                                    select#card3(name="card3" style='margin: 10px;')
-                                        option(value=1) 2
-                                        option(value=2) 3
-                                        option(value=3) 4
-                                        option(value=4) 5
-                                        option(value=5) 6
-                                        option(value=6) 7
-                                        option(value=7) 8
-                                        option(value=8) 9
-                                        option(value=9) 10
-                                        option(value=10) Jack
-                                        option(value=11) Queen
-                                        option(value=12) King
-                                        option(value=13) Ace
-                                    .btn-group(data-toggle='buttons')
-                                        label.btn-secondary.btn(for="card3club")
-                                            input#card3club(type='radio' value="4" name='card3Suit')
-                                            | Club
-                                        label.btn-secondary.btn(for="card3heart")
-                                            input#card3heart(type='radio' value="1" name='card3Suit')
-                                            | Heart
-                                        label.btn-secondary.btn(for="card3spade")
-                                            input#card3spade(type='radio' value="2" name='card3Suit')
-                                            | Spade
-                                        label.btn-secondary.btn(for="card3diamond")
-                                            input#card3diamond(type='radio' value="3" name='card3Suit')
-                                            | Diamond
-                                label.col-sm-2.control-label(for='card4') 4th Card:
-                                .col-sm-10
-                                    select#card3(name="card4" style='margin: 10px;')
-                                        option(value=1) 2
-                                        option(value=2) 3
-                                        option(value=3) 4
-                                        option(value=4) 5
-                                        option(value=5) 6
-                                        option(value=6) 7
-                                        option(value=7) 8
-                                        option(value=8) 9
-                                        option(value=9) 10
-                                        option(value=10) Jack
-                                        option(value=11) Queen
-                                        option(value=12) King
-                                        option(value=13) Ace
-                                    .btn-group(data-toggle='buttons')
-                                        label.btn-secondary.btn(for="card4club")
-                                            input#card4club(type='radio' value="4" name='card4Suit')
-                                            | Club
-                                        label.btn-secondary.btn(for="card4heart")
-                                            input#card4heart(type='radio' value="1" name='card4Suit')
-                                            | Heart
-                                        label.btn-secondary.btn(for="card4spade")
-                                            input#card4spade(type='radio' value="2" name='card4Suit')
-                                            | Spade
-                                        label.btn-secondary.btn(for="card4diamond")
-                                            input#card4diamond(type='radio' value="3" name='card4Suit')
-                                            | Diamond
-                                label.col-sm-2.control-label(for='card5') 5th Card:
-                                .col-sm-10
-                                    select#card5(name="card5" style='margin: 10px;')
-                                        option(value=1) 2
-                                        option(value=2) 3
-                                        option(value=3) 4
-                                        option(value=4) 5
-                                        option(value=5) 6
-                                        option(value=6) 7
-                                        option(value=7) 8
-                                        option(value=8) 9
-                                        option(value=9) 10
-                                        option(value=10) Jack
-                                        option(value=11) Queen
-                                        option(value=12) King
-                                        option(value=13) Ace
-                                    .btn-group(data-toggle='buttons')
-                                        label.btn-secondary.btn(for="card5club")
-                                            input#card5club(type='radio' value="4" name='card5Suit')
-                                            | Club
-                                        label.btn-secondary.btn(for="card5heart")
-                                            input#card5heart(type='radio' value="1" name='card5Suit')
-                                            | Heart
-                                        label.btn-secondary.btn(for="card5spade")
-                                            input#card5spade(type='radio' value="2" name='card5Suit')
-                                            | Spade
-                                        label.btn-secondary.btn(for="card5diamond")
-                                            input#card5diamond(type='radio' value="3" name='card5Suit')
-                                            | Diamond
-                            button.btn.btn-success#submitbtn(type='submit') Check Hand
+                                .col-md-6
+                                    img(src="./C2.svg", alt="")
+                                    .col-sm-12
+                                        select#card1(name="card1" style='margin: 10px;' onchange='onSelectChange(this);')
+                                            option(value=1) 2
+                                            option(value=2) 3
+                                            option(value=3) 4
+                                            option(value=4) 5
+                                            option(value=5) 6
+                                            option(value=6) 7
+                                            option(value=7) 8
+                                            option(value=8) 9
+                                            option(value=9) 10
+                                            option(value=10) Jack
+                                            option(value=11) Queen
+                                            option(value=12) King
+                                            option(value=13) Ace
+                                        .btn-group(data-toggle='buttons' onchange="onButtonChange(this);")
+                                            label.selected.btn-secondary.btn(for="card1club")
+                                                input#card1club(type='radio' value="4" name='card1Suit')
+                                                | Club
+                                            label.btn-secondary.btn(for="card1heart")
+                                                input#card1heart(type='radio' value="1" name='card1Suit')
+                                                | Heart
+                                            label.btn-secondary.btn(for="card1spade")
+                                                input#card1spade(type='radio' value="2" name='card1Suit')
+                                                | Spade
+                                            label.btn-secondary.btn(for="card1diamond")
+                                                input#card1diamond(type='radio' value="3" name='card1Suit')
+                                                | Diamond
+                                .col-md-6
+                                    img(src="./C2.svg", alt="")
+                                    .col-sm-12
+                                        select#card2(name="card2" style='margin: 10px;' onchange='onSelectChange(this);')
+                                            option(value=1) 2
+                                            option(value=2) 3
+                                            option(value=3) 4
+                                            option(value=4) 5
+                                            option(value=5) 6
+                                            option(value=6) 7
+                                            option(value=7) 8
+                                            option(value=8) 9
+                                            option(value=9) 10
+                                            option(value=10) Jack
+                                            option(value=11) Queen
+                                            option(value=12) King
+                                            option(value=13) Ace
+                                        .btn-group(data-toggle='buttons' onchange="onButtonChange(this);")
+                                            label.selected.btn-secondary.btn(for="card2club")
+                                                input#card2club(type='radio' value="3" name='card2Suit')
+                                                | Club
+                                            label.btn-secondary.btn(for="card2heart")
+                                                input#card2heart(type='radio' value="1" name='card2Suit')
+                                                | Heart
+                                            label.btn-secondary.btn(for="card2spade")
+                                                input#card2spade(type='radio' value="2" name='card2Suit')
+                                                | Spade
+                                            label.btn-secondary.btn(for="card2diamond")
+                                                input#card2diamond(type='radio' value="3" name='card2Suit')
+                                                | Diamond
+                                .col-md-6
+                                    img(src="./C2.svg", alt="")
+                                    .col-sm-12
+                                        select#card3(name="card3" style='margin: 10px;' onchange='onSelectChange(this);')
+                                            option(value=1) 2
+                                            option(value=2) 3
+                                            option(value=3) 4
+                                            option(value=4) 5
+                                            option(value=5) 6
+                                            option(value=6) 7
+                                            option(value=7) 8
+                                            option(value=8) 9
+                                            option(value=9) 10
+                                            option(value=10) Jack
+                                            option(value=11) Queen
+                                            option(value=12) King
+                                            option(value=13) Ace
+                                        .btn-group(data-toggle='buttons' onchange="onButtonChange(this);")
+                                            label.selected.btn-secondary.btn(for="card3club")
+                                                input#card3club(type='radio' value="4" name='card3Suit')
+                                                | Club
+                                            label.btn-secondary.btn(for="card3heart")
+                                                input#card3heart(type='radio' value="1" name='card3Suit')
+                                                | Heart
+                                            label.btn-secondary.btn(for="card3spade")
+                                                input#card3spade(type='radio' value="2" name='card3Suit')
+                                                | Spade
+                                            label.btn-secondary.btn(for="card3diamond")
+                                                input#card3diamond(type='radio' value="3" name='card3Suit')
+                                                | Diamond
+                                .col-md-6
+                                    img(src="./C2.svg", alt="")
+                                    .col-sm-12
+                                        select#card3(name="card4" style='margin: 10px;' onchange='onSelectChange(this);')
+                                            option(value=1) 2
+                                            option(value=2) 3
+                                            option(value=3) 4
+                                            option(value=4) 5
+                                            option(value=5) 6
+                                            option(value=6) 7
+                                            option(value=7) 8
+                                            option(value=8) 9
+                                            option(value=9) 10
+                                            option(value=10) Jack
+                                            option(value=11) Queen
+                                            option(value=12) King
+                                            option(value=13) Ace
+                                        .btn-group(data-toggle='buttons' onchange="onButtonChange(this);")
+                                            label.selected.btn-secondary.btn(for="card4club")
+                                                input#card4club(type='radio' value="4" name='card4Suit')
+                                                | Club
+                                            label.btn-secondary.btn(for="card4heart")
+                                                input#card4heart(type='radio' value="1" name='card4Suit')
+                                                | Heart
+                                            label.btn-secondary.btn(for="card4spade")
+                                                input#card4spade(type='radio' value="2" name='card4Suit')
+                                                | Spade
+                                            label.btn-secondary.btn(for="card4diamond")
+                                                input#card4diamond(type='radio' value="3" name='card4Suit')
+                                                | Diamond
+                                .col-md-6
+                                    img(src="./C2.svg", alt="")
+                                    .col-sm-12
+                                        select#card5(name="card5" style='margin: 10px;' onchange='onSelectChange(this);')
+                                            option(value=1) 2
+                                            option(value=2) 3
+                                            option(value=3) 4
+                                            option(value=4) 5
+                                            option(value=5) 6
+                                            option(value=6) 7
+                                            option(value=7) 8
+                                            option(value=8) 9
+                                            option(value=9) 10
+                                            option(value=10) Jack
+                                            option(value=11) Queen
+                                            option(value=12) King
+                                            option(value=13) Ace
+                                        .btn-group(data-toggle='buttons' onchange="onButtonChange(this);")
+                                            label.selected.btn-secondary.btn(for="card5club")
+                                                input#card5club(type='radio' value="4" name='card5Suit')
+                                                | Club
+                                            label.btn-secondary.btn(for="card5heart")
+                                                input#card5heart(type='radio' value="1" name='card5Suit')
+                                                | Heart
+                                            label.btn-secondary.btn(for="card5spade")
+                                                input#card5spade(type='radio' value="2" name='card5Suit')
+                                                | Spade
+                                            label.btn-secondary.btn(for="card5diamond")
+                                                input#card5diamond(type='radio' value="3" name='card5Suit')
+                                                | Diamond
+                                #submitArea.col-md-6.text-center
+                                    button.btn.btn-success#submitbtn(type='submit') Check Hand
                     .col-md-6
-                        span
-                            p.text-primary.output-text
-                                | #{output}
-script.
-    $(document).ready(() => {
-        $(document).on('click', 'input[type=radio]', () => {
-            $('body').find('.selected').removeClass('selected');
-            let radio = $(`input[type='radio']`).filter(':checked');
+                        .output-space
+                            span
+                                p.text-primary.output-text
+                                    | #{output}
+    script.
+        const suits = ['club','diamond','spade','heart'];
+
+        const suitNameForSelect = (r) => {
+            if (r === undefined) return null;
+            for(let index = 0; index < suits.length; index++){
+                //- console.log($(`#${$(r).prop('id')}${suits[index]}`).prop('id'));
+                if($(`#${$(r).prop('id')}${suits[index]}`).parent().hasClass('selected')){
+                    return suits[index].charAt(0).toUpperCase();
+                }
+            };
+        };
+
+        const rank_name = (r) => {
+            if (r === undefined) return null;
+            if (r.value < 10){
+                return parseInt(r.value) + 1;
+            } else {
+                return ["J", "Q", "K", "A"][r.value - 10]
+            }
+        };
+
+        const onSelectChange = (rank) => {
+            console.log(rank.value);
+            console.log(rank_name(rank));
+            console.log(`./${suitNameForSelect(rank)}${rank_name(rank)}`);
+            $(rank).parent().parent().children('img').attr('src', `./${suitNameForSelect(rank)}${rank_name(rank)}.svg`);
+        };
+
+        const onButtonChange = (button) => {
+            $(button).find('.selected').removeClass('selected');
+            let radio = $(button).find(`input:radio:checked`);
             $(radio).parent().addClass('selected');
-        });
-    });
+            let img = $(radio).parent().parent().parent().parent().children('img');
+            let rank = $(`#${$(radio).prop('id')}`);
+            let svgIndex = img.prop('src').indexOf('svg');
+            $(img).attr('src', `./${$(rank).parent().text().substring(0,1)}${img.prop('src').substring(svgIndex - 2)}`);
+        };
+
+        const ws = new Websocket('ws://localhost:8080/');
+        ws.onmessage = (message) => {
+            console.log(message);
+            $('.output-text').prop('text', message);
+        }

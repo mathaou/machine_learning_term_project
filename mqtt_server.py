@@ -14,8 +14,9 @@ class MQTTBroker():
 
     mqtt = None
 
-    server_in = "/hand/server"
-    client_out = "/hand/client"
+    server_in = "hand/server"
+    client_out = "hand/client"
+    status = "status"
 
     """Location of mqtt broker."""
     broker_url = "localhost"
@@ -45,19 +46,19 @@ class MQTTBroker():
         self.mqtt.on_log = self.on_log
         self.mqtt.on_message = self.on_message
 
-    """Initial control structure before pass off to emulated device"""
     def handle_loop(self):
         while True:
             self.mqtt.loop(.1, 64)
 
     """On message handler gets called anytime self.mqtt recieves a subscription"""
     def on_message(self, client, userdata, msg):
-        print("{}: {}".format(msg.topic, str(msg.payload.decode("utf-8"))))
+        payload = str(msg.payload.decode("utf-8"))
+        print("{}: {}".format(msg.topic, payload))
 
         """Any data destined for host from client node"""
         if(msg.topic == self.server_in):
             # time.sleep(5)
-            self.classifier = hand.HandClassifier(payload=str(msg.payload.decode("utf-8")))
+            self.classifier = hand.HandClassifier(mqtt = self.mqtt, payload=payload)
             self.mqtt.publish(self.client_out, self.classifier.__str__())
 
     """On connect handler gets called upon a connection request"""

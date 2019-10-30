@@ -1,18 +1,23 @@
 const BROKERPORT = 1883;
 const BROKERURL = "localhost";
 const mqtt = require('mqtt');
-const async_mqtt = require('async-mqtt');
-let client = null, asyncClient = null;
-let client_in = "/hand/client";
-let server_out = "/hand/server";
+let client = null;
+let client_in = "hand/client";
+let server_out = "hand/server";
+let status = "status";
 var port = process.env.PORT || 8080;
-
 
 const express = require("express");
 
 const app = express();
 
+const expressWS = require('express-ws')(app);
+
+expressWS.app.ws('/', (ws, req) => {});
+const aWss = expressWS.getWss('/');
+
 app.use(express.static('public'));
+app.use(express.static('layoutit/src/52 card'))
 app.use('/jquery', express.static(__dirname + '/node_modules/jquery/dist/'));
 
 var bodyParser = require('body-parser');
@@ -40,7 +45,7 @@ app.post('/hand', (req, res) => {
         ]
     };
 
-    output = queryNetwork(input, res);
+    output = queryNetwork(input);
 });
 
 app.set('view engine', 'pug');
@@ -49,39 +54,39 @@ const server = app.listen(port, () => {
     console.log(`RUNNING ON PORT ${server.address().port}`);
 });
 
-const queryNetwork = async (payload, res) => {
-    asyncClient.on("message", (topic, message) => {
-        if(topic == client_in){
-            output = message;
-            res.redirect("/");
-        }
-    });
+const queryNetwork = (payload) => {
     if (client === null) {
         console.log("error initializing mqtt client...");
     } else {
-        await asyncClient.publish(server_out, JSON.stringify(payload));
+        client.publish(server_out, JSON.stringify(payload));
     }
 };
 
 let main = () => {
     client = mqtt.connect(BROKERURL, {"clientId": "client", "port": BROKERPORT, "protocol": "MQTT"});
 
-    asyncClient = new async_mqtt.AsyncClient(client);
+    client.on("message", (topic, message) => {
+        output = message;
+        aWss.clients.forEach((c) => {
+            c.send(output);
+        });
+    });
 
-    handleProcessEvents();
     linkHandlers();
+    handleProcessEvents();
 }
 
 function linkHandlers() {
-    asyncClient.on("connect", onConnect);
-    asyncClient.on("disconnect", onDisconnect);
-    asyncClient.on("error", onError);
-    asyncClient.on("packetsend", onPacketSend);
+    client.on("connect", onConnect);
+    client.on("disconnect", onDisconnect);
+    client.on("error", onError);
+    client.on("packetsend", onPacketSend);
 }
 
 function onConnect(connack) {
     console.log("Connecting...: " + JSON.stringify(connack));
-    client.subscribe(client_in)
+    client.subscribe(client_in);
+    client.subscribe(status);
 }
 
 function onDisconnect(packet) {
@@ -93,7 +98,7 @@ function onError(error) {
 }
 
 function onPacketSend(packet) {
-    // console.log("Client sent packet to server: " + JSON.stringify(packet));
+    console.log("Client sent packet to server: " + JSON.stringify(packet));
 }
 
 function handleProcessEvents() {
@@ -116,7 +121,7 @@ const HandleAppExit = (options, err) => {
     }
     if(options.cleanup){
         client.end();
-        asyncClient.end();
+        client.end();
     }
     if(options.exit){
         process.exit();

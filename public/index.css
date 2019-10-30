@@ -3,9 +3,38 @@
 }
 
 .output-text {
-    font-size: 5vh;
+    font-size: 3vh;
 }
 
 #test > * {
     font-size: 2vh;
+}
+
+h1 {
+    text-align: center;
+    font-size: 2vh;
+}
+
+html {
+    overflow: hidden;
+}
+
+#submitArea {
+    flex-flow: column;
+    display: flex;
+    position: relative;
+    justify-content: center;
+}
+
+body {
+    margin: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100vh;
+}
+
+.output-space {
+    margin: 5vh;
 }

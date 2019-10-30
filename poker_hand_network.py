@@ -24,13 +24,18 @@ class PokerHandANN():
 
     pickle_file_path = 'pkr_hnd.pkl'
 
-    def __init__(self):
+    def __init__(self, hand, mqtt):
+
         # files_exist = os.path.exists(self.pickle_file_path)
         with open("poker-hand.data") as file:
             data = file.readlines()
             data = data[0:30000]
             # define splits
             testing_validation_split = int(len(data) * .2)
+
+            if mqtt is not None:
+                print("Sending status...")
+                mqtt.publish("hand/client", "Initializing network...")
 
             print("Splitting testing set...")
             # divy up testing
@@ -210,4 +215,4 @@ class PokerHandANN():
         print (cm)
         print ("Percentage Correct: ",np.trace(cm)/np.sum(cm)*100)
 
-PokerHandANN()
+# PokerHandANN()

@@ -8,6 +8,8 @@ class Hand():
         self.rank = int(arr[0])
         try:
             self.suit = int(arr[1])
+            if self.suit is None:
+                self.suit = 1
         except Exception:
             self.suit = 1
         # print('{0}'.format(self.__str__()))
@@ -35,7 +37,7 @@ class Hand():
 
 class HandClassifier():
 
-    def __init__(self, payload=None):
+    def __init__(self, mqtt = None, payload=None):
         print("Reading in payload...")
         self.payload = payload
         self.hand = []
@@ -44,8 +46,8 @@ class HandClassifier():
         for card in data["hand"]:
             # print(card)
             self.hand.append(Hand(card))
-        self.ann = network.PokerHandANN()
-        self.ann.test(self.hand)
+        print(self.hand)
+        self.ann = network.PokerHandANN(self.hand, mqtt)
 
     def __str__(self):
         ret = "Hand contains: "
