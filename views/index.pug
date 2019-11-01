@@ -218,8 +218,13 @@ html(lang='en')
             $(img).attr('src', `./${$(rank).parent().text().substring(0,1)}${img.prop('src').substring(svgIndex - 2)}`);
         };
 
-        const ws = new Websocket('ws://localhost:8080/');
-        ws.onmessage = (message) => {
-            console.log(message);
-            $('.output-text').prop('text', message);
-        }
+        $(document).ready(() => {
+            const ws = new WebSocket('ws://localhost:40510');    // event emmited when connected
+            //- ws.onopen = () => {
+            //-     ws.send('connected');
+            //- };  // event emmited when receiving message 
+            ws.onmessage = (ev) => {
+                console.log(JSON.stringify(ev));
+                $(".output-text").prop('text', JSON.stringify(ev['data']));
+            };
+        });

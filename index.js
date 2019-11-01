@@ -4,17 +4,11 @@ const mqtt = require('mqtt');
 let client = null;
 let client_in = "hand/client";
 let server_out = "hand/server";
-let status = "status";
 var port = process.env.PORT || 8080;
 
 const express = require("express");
-
 const app = express();
-
-const expressWS = require('express-ws')(app);
-
-expressWS.app.ws('/', (ws, req) => {});
-const aWss = expressWS.getWss('/');
+var ws = require('ws')
 
 app.use(express.static('public'));
 app.use(express.static('layoutit/src/52 card'))
@@ -32,6 +26,15 @@ app.get('/', (req, res) => {
     res.render('index', {
         output: output
     });
+    res.end();
+});
+
+const WebSocketServer = require('ws').Server;
+wss = new WebSocketServer({port: 40510});
+wss.on('connection', (ws) => {
+    ws.on('message', (message) => {
+        ws.send(message);
+    });
 });
 
 app.post('/hand', (req, res) => {
@@ -46,6 +49,7 @@ app.post('/hand', (req, res) => {
     };
 
     output = queryNetwork(input);
+    res.redirect('/');
 });
 
 app.set('view engine', 'pug');
@@ -64,11 +68,14 @@ const queryNetwork = (payload) => {
 
 let main = () => {
     client = mqtt.connect(BROKERURL, {"clientId": "client", "port": BROKERPORT, "protocol": "MQTT"});
-
     client.on("message", (topic, message) => {
+        console.log(Buffer.from(message).toString())
         output = message;
-        aWss.clients.forEach((c) => {
-            c.send(output);
+        wss.clients.forEach((c) => {
+            if(c != ws){
+                console.log(Buffer.from(message).toString());
+                c.send(Buffer.from(message).toString());
+            }
         });
     });
 
@@ -86,7 +93,6 @@ function linkHandlers() {
 function onConnect(connack) {
     console.log("Connecting...: " + JSON.stringify(connack));
     client.subscribe(client_in);
-    client.subscribe(status);
 }
 
 function onDisconnect(packet) {
@@ -120,7 +126,6 @@ const HandleAppExit = (options, err) => {
         process.exit();
     }
     if(options.cleanup){
-        client.end();
         client.end();
     }
     if(options.exit){

@@ -16,7 +16,6 @@ class MQTTBroker():
 
     server_in = "hand/server"
     client_out = "hand/client"
-    status = "status"
 
     """Location of mqtt broker."""
     broker_url = "localhost"
@@ -57,13 +56,13 @@ class MQTTBroker():
 
         """Any data destined for host from client node"""
         if(msg.topic == self.server_in):
-            # time.sleep(5)
-            self.classifier = hand.HandClassifier(mqtt = self.mqtt, payload=payload)
+            self.classifier = hand.HandClassifier(mqtt = client, payload = payload)
             self.mqtt.publish(self.client_out, self.classifier.__str__())
 
     """On connect handler gets called upon a connection request"""
     def on_connect(self, client, userdata, flags, rc):
         if rc == 0:
+            client.publish(self.client_out, b'Connect')
             print("Established connection...")
         else:
             print("No connection established, returned error code {}...".format(rc))

@@ -2,254 +2,419 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-
-    <title>Bootstrap 4, from LayoutIt!</title>
-
-    <meta
-      name="description"
-      content="Source code generated using layoutit.com"
+    <title>Term Project</title>
+    <link
+      rel="stylesheet"
+      href="https://stackpath.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css"
+      integrity="sha384-HSMxcRTRxnN+Bdg0JdbxYKrThecOKuH5zCYotlSAcp1+c8xmyTe9GYg1l9a69psu"
+      crossorigin="anonymous"
     />
-    <meta name="author" content="LayoutIt!" />
-    <link href="css/bootstrap.min.css" rel="stylesheet" />
-    <link href="css/style.css" rel="stylesheet" />
+    <link rel="stylesheet" type="text/css" href="index.css" />
+    <script type="text/javascript" src="/jquery/jquery.js"></script>
   </head>
   <body>
     <div class="container-fluid">
-      <div class="row">
-        <div class="col-md-4">
-          <img alt="Bootstrap Image Preview" src=".\52 card\Poker.jpg" />
-          <div class="btn-group" role="group">
-            <button class="btn btn-secondary" type="button" value="Club">
-              Club
-            </button>
-            <button class="btn btn-secondary" type="button" value="Diamond">
-              Diamond
-            </button>
-            <button class="btn btn-secondary" type="button" value="Heart">
-              Heart
-            </button>
-            <button class="btn btn-secondary" type="button" value="Spade">
-              Spade
-            </button>
-          </div>
-          <div class="form-row">
-            <div class="form-group col-md-6">
-              <label class="my-1 mr-2" for="inlineFormCustomSelectPref"
-                >Number</label
-              >
-              <select
-                class="custom-select my-1 mr-sm"
-                name="Number"
-                id="inlineFormCustomSelectPref"
-                onchange="cardChange(this);"
-              >
-                <option value="1">2</option>
-                <option value="2">3</option>
-                <option value="3">4</option>
-                <option value="4">5</option>
-                <option value="5">6</option>
-                <option value="6">7</option>
-                <option value="7">8</option>
-                <option value="8">9</option>
-                <option value="9">10</option>
-                <option value="10">11</option>
-                <option value="11">12</option>
-                <option value="12">13</option>
-                <option value="13">A</option>
-              </select>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <img alt="Bootstrap Image Preview" src=".\52 card\Poker.jpg" />
-          <div class="btn-group" role="group">
-            <button class="btn btn-secondary" type="button" value="Club">
-              Club
-            </button>
-            <button class="btn btn-secondary" type="button" value="Diamond">
-              Diamond
-            </button>
-            <button class="btn btn-secondary" type="button" value="Heart">
-              Heart
-            </button>
-            <button class="btn btn-secondary" type="button" value="Spade">
-              Spade
-            </button>
-          </div>
-          <div class="form-row">
-            <div class="form-group col-md-6">
-              <label class="my-1 mr-2" for="inlineFormCustomSelectPref"
-                >Number</label
-              >
-              <select
-                class="custom-select my-1 mr-sm"
-                name="Number"
-                id="inlineFormCustomSelectPref"
-              >
-                <option value="1">2</option>
-                <option value="2">3</option>
-                <option value="3">4</option>
-                <option value="4">5</option>
-                <option value="5">6</option>
-                <option value="6">7</option>
-                <option value="7">8</option>
-                <option value="8">9</option>
-                <option value="9">10</option>
-                <option value="10">11</option>
-                <option value="11">12</option>
-                <option value="12">13</option>
-                <option value="13">A</option>
-              </select>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <img alt="Bootstrap Image Preview" src=".\52 card\Poker.jpg" />
-          <div class="btn-group" role="group">
-            <button class="btn btn-secondary" type="button" value="Club">
-              Club
-            </button>
-            <button class="btn btn-secondary" type="button" value="Diamond">
-              Diamond
-            </button>
-            <button class="btn btn-secondary" type="button" value="Heart">
-              Heart
-            </button>
-            <button class="btn btn-secondary" type="button" value="Spade">
-              Spade
-            </button>
-          </div>
-          <div class="form-row">
-            <div class="form-group col-md-6">
-              <label class="my-1 mr-2" for="inlineFormCustomSelectPref"
-                >Number</label
-              >
-              <select
-                class="custom-select my-1 mr-sm"
-                name="Number"
-                id="inlineFormCustomSelectPref"
-              >
-                <option value="1">2</option>
-                <option value="2">3</option>
-                <option value="3">4</option>
-                <option value="4">5</option>
-                <option value="5">6</option>
-                <option value="6">7</option>
-                <option value="7">8</option>
-                <option value="8">9</option>
-                <option value="9">10</option>
-                <option value="10">11</option>
-                <option value="11">12</option>
-                <option value="12">13</option>
-                <option value="13">A</option>
-              </select>
-            </div>
-          </div>
+      <div class="row justify-content-center">
+        <div class="col-md-12">
+          <h1>
+            Tom Jiang and Matt Farstad
+            What-Hand-Does-Our-Neural-Network-Classify-Your-Input-As-ifier!
+          </h1>
         </div>
       </div>
       <div class="row">
-        <div class="col-md-4">
-          <img alt="Bootstrap Image Preview" src=".\52 card\Poker.jpg" />
-          <div class="btn-group" role="group">
-            <button class="btn btn-secondary" type="button" value="Club">
-              Club
-            </button>
-            <button class="btn btn-secondary" type="button" value="Diamond">
-              Diamond
-            </button>
-            <button class="btn btn-secondary" type="button" value="Heart">
-              Heart
-            </button>
-            <button class="btn btn-secondary" type="button" value="Spade">
-              Spade
-            </button>
-          </div>
-          <div class="form-row">
-            <div class="form-group col-md-6">
-              <label class="my-1 mr-2" for="inlineFormCustomSelectPref"
-                >Number</label
-              >
-              <select
-                class="custom-select my-1 mr-sm"
-                name="Number"
-                id="inlineFormCustomSelectPref"
-              >
-                <option value="1">2</option>
-                <option value="2">3</option>
-                <option value="3">4</option>
-                <option value="4">5</option>
-                <option value="5">6</option>
-                <option value="6">7</option>
-                <option value="7">8</option>
-                <option value="8">9</option>
-                <option value="9">10</option>
-                <option value="10">11</option>
-                <option value="11">12</option>
-                <option value="12">13</option>
-                <option value="13">A</option>
-              </select>
+        <div class="col-md-6">
+          <form
+            class="form-horizontal"
+            id="test"
+            role="form"
+            method="POST"
+            action="/hand"
+          >
+            <div class="form-group">
+              <div class="col-md-6">
+                <img src="./C2.svg" alt="" />
+                <div class="col-sm-12">
+                  <select
+                    id="card1"
+                    name="card1"
+                    style="margin: 10px;"
+                    onchange="onSelectChange(this);"
+                    ><option value="1">2</option
+                    ><option value="2">3</option
+                    ><option value="3">4</option
+                    ><option value="4">5</option
+                    ><option value="5">6</option
+                    ><option value="6">7</option
+                    ><option value="7">8</option
+                    ><option value="8">9</option
+                    ><option value="9">10</option
+                    ><option value="10">Jack</option
+                    ><option value="11">Queen</option
+                    ><option value="12">King</option
+                    ><option value="13">Ace</option></select
+                  >
+                  <div
+                    class="btn-group"
+                    data-toggle="buttons"
+                    onchange="onButtonChange(this);"
+                  >
+                    <label class="selected btn-secondary btn" for="card1club"
+                      ><input
+                        id="card1club"
+                        type="radio"
+                        value="4"
+                        name="card1Suit"
+                      />Club</label
+                    ><label class="btn-secondary btn" for="card1heart"
+                      ><input
+                        id="card1heart"
+                        type="radio"
+                        value="1"
+                        name="card1Suit"
+                      />Heart</label
+                    ><label class="btn-secondary btn" for="card1spade"
+                      ><input
+                        id="card1spade"
+                        type="radio"
+                        value="2"
+                        name="card1Suit"
+                      />Spade</label
+                    ><label class="btn-secondary btn" for="card1diamond"
+                      ><input
+                        id="card1diamond"
+                        type="radio"
+                        value="3"
+                        name="card1Suit"
+                      />Diamond</label
+                    >
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <img src="./C2.svg" alt="" />
+                <div class="col-sm-12">
+                  <select
+                    id="card2"
+                    name="card2"
+                    style="margin: 10px;"
+                    onchange="onSelectChange(this);"
+                    ><option value="1">2</option
+                    ><option value="2">3</option
+                    ><option value="3">4</option
+                    ><option value="4">5</option
+                    ><option value="5">6</option
+                    ><option value="6">7</option
+                    ><option value="7">8</option
+                    ><option value="8">9</option
+                    ><option value="9">10</option
+                    ><option value="10">Jack</option
+                    ><option value="11">Queen</option
+                    ><option value="12">King</option
+                    ><option value="13">Ace</option></select
+                  >
+                  <div
+                    class="btn-group"
+                    data-toggle="buttons"
+                    onchange="onButtonChange(this);"
+                  >
+                    <label class="selected btn-secondary btn" for="card2club"
+                      ><input
+                        id="card2club"
+                        type="radio"
+                        value="3"
+                        name="card2Suit"
+                      />Club</label
+                    ><label class="btn-secondary btn" for="card2heart"
+                      ><input
+                        id="card2heart"
+                        type="radio"
+                        value="1"
+                        name="card2Suit"
+                      />Heart</label
+                    ><label class="btn-secondary btn" for="card2spade"
+                      ><input
+                        id="card2spade"
+                        type="radio"
+                        value="2"
+                        name="card2Suit"
+                      />Spade</label
+                    ><label class="btn-secondary btn" for="card2diamond"
+                      ><input
+                        id="card2diamond"
+                        type="radio"
+                        value="3"
+                        name="card2Suit"
+                      />Diamond</label
+                    >
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <img src="./C2.svg" alt="" />
+                <div class="col-sm-12">
+                  <select
+                    id="card3"
+                    name="card3"
+                    style="margin: 10px;"
+                    onchange="onSelectChange(this);"
+                    ><option value="1">2</option
+                    ><option value="2">3</option
+                    ><option value="3">4</option
+                    ><option value="4">5</option
+                    ><option value="5">6</option
+                    ><option value="6">7</option
+                    ><option value="7">8</option
+                    ><option value="8">9</option
+                    ><option value="9">10</option
+                    ><option value="10">Jack</option
+                    ><option value="11">Queen</option
+                    ><option value="12">King</option
+                    ><option value="13">Ace</option></select
+                  >
+                  <div
+                    class="btn-group"
+                    data-toggle="buttons"
+                    onchange="onButtonChange(this);"
+                  >
+                    <label class="selected btn-secondary btn" for="card3club"
+                      ><input
+                        id="card3club"
+                        type="radio"
+                        value="4"
+                        name="card3Suit"
+                      />Club</label
+                    ><label class="btn-secondary btn" for="card3heart"
+                      ><input
+                        id="card3heart"
+                        type="radio"
+                        value="1"
+                        name="card3Suit"
+                      />Heart</label
+                    ><label class="btn-secondary btn" for="card3spade"
+                      ><input
+                        id="card3spade"
+                        type="radio"
+                        value="2"
+                        name="card3Suit"
+                      />Spade</label
+                    ><label class="btn-secondary btn" for="card3diamond"
+                      ><input
+                        id="card3diamond"
+                        type="radio"
+                        value="3"
+                        name="card3Suit"
+                      />Diamond</label
+                    >
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <img src="./C2.svg" alt="" />
+                <div class="col-sm-12">
+                  <select
+                    id="card3"
+                    name="card4"
+                    style="margin: 10px;"
+                    onchange="onSelectChange(this);"
+                    ><option value="1">2</option
+                    ><option value="2">3</option
+                    ><option value="3">4</option
+                    ><option value="4">5</option
+                    ><option value="5">6</option
+                    ><option value="6">7</option
+                    ><option value="7">8</option
+                    ><option value="8">9</option
+                    ><option value="9">10</option
+                    ><option value="10">Jack</option
+                    ><option value="11">Queen</option
+                    ><option value="12">King</option
+                    ><option value="13">Ace</option></select
+                  >
+                  <div
+                    class="btn-group"
+                    data-toggle="buttons"
+                    onchange="onButtonChange(this);"
+                  >
+                    <label class="selected btn-secondary btn" for="card4club"
+                      ><input
+                        id="card4club"
+                        type="radio"
+                        value="4"
+                        name="card4Suit"
+                      />Club</label
+                    ><label class="btn-secondary btn" for="card4heart"
+                      ><input
+                        id="card4heart"
+                        type="radio"
+                        value="1"
+                        name="card4Suit"
+                      />Heart</label
+                    ><label class="btn-secondary btn" for="card4spade"
+                      ><input
+                        id="card4spade"
+                        type="radio"
+                        value="2"
+                        name="card4Suit"
+                      />Spade</label
+                    ><label class="btn-secondary btn" for="card4diamond"
+                      ><input
+                        id="card4diamond"
+                        type="radio"
+                        value="3"
+                        name="card4Suit"
+                      />Diamond</label
+                    >
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6">
+                <img src="./C2.svg" alt="" />
+                <div class="col-sm-12">
+                  <select
+                    id="card5"
+                    name="card5"
+                    style="margin: 10px;"
+                    onchange="onSelectChange(this);"
+                    ><option value="1">2</option
+                    ><option value="2">3</option
+                    ><option value="3">4</option
+                    ><option value="4">5</option
+                    ><option value="5">6</option
+                    ><option value="6">7</option
+                    ><option value="7">8</option
+                    ><option value="8">9</option
+                    ><option value="9">10</option
+                    ><option value="10">Jack</option
+                    ><option value="11">Queen</option
+                    ><option value="12">King</option
+                    ><option value="13">Ace</option></select
+                  >
+                  <div
+                    class="btn-group"
+                    data-toggle="buttons"
+                    onchange="onButtonChange(this);"
+                  >
+                    <label class="selected btn-secondary btn" for="card5club"
+                      ><input
+                        id="card5club"
+                        type="radio"
+                        value="4"
+                        name="card5Suit"
+                      />Club</label
+                    ><label class="btn-secondary btn" for="card5heart"
+                      ><input
+                        id="card5heart"
+                        type="radio"
+                        value="1"
+                        name="card5Suit"
+                      />Heart</label
+                    ><label class="btn-secondary btn" for="card5spade"
+                      ><input
+                        id="card5spade"
+                        type="radio"
+                        value="2"
+                        name="card5Suit"
+                      />Spade</label
+                    ><label class="btn-secondary btn" for="card5diamond"
+                      ><input
+                        id="card5diamond"
+                        type="radio"
+                        value="3"
+                        name="card5Suit"
+                      />Diamond</label
+                    >
+                  </div>
+                </div>
+              </div>
+              <div class="col-md-6 text-center" id="submitArea">
+                <button class="btn btn-success" id="submitbtn" type="submit">
+                  Check Hand
+                </button>
+              </div>
             </div>
-          </div>
+          </form>
         </div>
-        <div class="col-md-4">
-          <img alt="Bootstrap Image Preview" src=".\52 card\C2.svg" />
-          <div class="btn-group" role="group">
-            <button class="btn btn-secondary" type="button" value="Club">
-              Club
-            </button>
-            <button class="btn btn-secondary" type="button" value="Diamond">
-              Diamond
-            </button>
-            <button class="btn btn-secondary" type="button" value="Heart">
-              Heart
-            </button>
-            <button class="btn btn-secondary" type="button" value="Spade">
-              Spade
-            </button>
+        <div class="col-md-6">
+          <div class="output-space">
+            <span><p class="text-primary output-text"></p></span>
           </div>
-          <div class="form-row">
-            <div class="form-group col-md-6">
-              <label class="my-1 mr-2" for="inlineFormCustomSelectPref"
-                >Number</label
-              >
-              <select
-                class="custom-select my-1 mr-sm"
-                name="Number"
-                id="inlineFormCustomSelectPref"
-              >
-                <option value="1">2</option>
-                <option value="2">3</option>
-                <option value="3">4</option>
-                <option value="4">5</option>
-                <option value="5">6</option>
-                <option value="6">7</option>
-                <option value="7">8</option>
-                <option value="8">9</option>
-                <option value="9">10</option>
-                <option value="10">11</option>
-                <option value="11">12</option>
-                <option value="12">13</option>
-                <option value="13">A</option>
-              </select>
-            </div>
-          </div>
-        </div>
-        <div class="col-md-4">
-          <button type="button" class="btn btn-success">
-            Button
-          </button>
         </div>
       </div>
-	</div>
-	<script src="js/jquery.min.js"></script>
-	<script src="https://npmcdn.com/tether@1.2.4/dist/js/tether.min.js"></script>
-	<script src="js/bootstrap.min.js"></script>
-	<script>
-	const cardChange = (card) => {
-		console.log(card.id);
-	};
-	</script>
+    </div>
   </body>
+  <script>
+    const suits = ["club", "diamond", "spade", "heart"];
+
+    const suitNameForSelect = r => {
+      if (r === undefined) return null;
+      for (let index = 0; index < suits.length; index++) {
+        //- console.log($(`#${$(r).prop('id')}${suits[index]}`).prop('id'));
+        if (
+          $(`#${$(r).prop("id")}${suits[index]}`)
+            .parent()
+            .hasClass("selected")
+        ) {
+          return suits[index].charAt(0).toUpperCase();
+        }
+      }
+    };
+
+    const rank_name = r => {
+      if (r === undefined) return null;
+      if (r.value < 10) {
+        return parseInt(r.value) + 1;
+      } else {
+        return ["J", "Q", "K", "A"][r.value - 10];
+      }
+    };
+
+    const onSelectChange = rank => {
+      console.log(rank.value);
+      console.log(rank_name(rank));
+      console.log(`./${suitNameForSelect(rank)}${rank_name(rank)}`);
+      $(rank)
+        .parent()
+        .parent()
+        .children("img")
+        .attr("src", `./${suitNameForSelect(rank)}${rank_name(rank)}.svg`);
+    };
+
+    const onButtonChange = button => {
+      $(button)
+        .find(".selected")
+        .removeClass("selected");
+      let radio = $(button).find(`input:radio:checked`);
+      $(radio)
+        .parent()
+        .addClass("selected");
+      let img = $(radio)
+        .parent()
+        .parent()
+        .parent()
+        .parent()
+        .children("img");
+      let rank = $(`#${$(radio).prop("id")}`);
+      let svgIndex = img.prop("src").indexOf("svg");
+      $(img).attr(
+        "src",
+        `./${$(rank)
+          .parent()
+          .text()
+          .substring(0, 1)}${img.prop("src").substring(svgIndex - 2)}`
+      );
+    };
+
+    $(document).ready(() => {
+      const ws = new WebSocket("ws://localhost:40510"); // event emmited when connected
+      //- ws.onopen = () => {
+      //-     ws.send('connected');
+      //- };  // event emmited when receiving message
+      ws.onmessage = ev => {
+        console.log(JSON.stringify(ev));
+        $(".output-text").prop("text", JSON.stringify(ev["data"]));
+      };
+    });
+  </script>
 </html>

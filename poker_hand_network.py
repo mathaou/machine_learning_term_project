@@ -6,6 +6,7 @@ import numpy as np
 # import pickle
 import os.path
 import random
+import sys
 
 class PokerHandANN():
     # remember the .6:.2:.2 split for testing/training/validation
@@ -15,23 +16,27 @@ class PokerHandANN():
     testing = []
     validation = []
 
-    nhidden = 10
+    nhidden = 15
     beta = 1
     momentum = .9
     outtype = 'linear'
-    w = .25
+    w = .2
     num_iterations = 1000
+    normalize_data = False
+    randomize_data = False
+    encode = False
 
     pickle_file_path = 'pkr_hnd.pkl'
 
     def __init__(self, hand, mqtt):
-
+        np.set_printoptions(threshold=sys.maxsize)
         # files_exist = os.path.exists(self.pickle_file_path)
         with open("poker-hand.data") as file:
             data = file.readlines()
-            data = data[0:30000]
+            data = data[0:1000]
             # define splits
             testing_validation_split = int(len(data) * .2)
+            print(testing_validation_split)
 
             if mqtt is not None:
                 print("Sending status...")
@@ -57,6 +62,8 @@ class PokerHandANN():
             self.nin = np.shape(self.inputs)[1]
             self.nout = np.shape(self.targets)[1]
             self.ndata = np.shape(self.inputs)[0]
+
+            print(self.inputs)
         
             # Initialise network
             self.weights1 = (np.random.rand(self.nin+1,self.nhidden)-0.5)*2/np.sqrt(self.nin)
@@ -98,16 +105,33 @@ class PokerHandANN():
                 print("Iteration {0}/{1} complete...".format(v, len(input)))
             v += 1
             i = line.split(",")
-            temp_input = np.array(i[:-1]).astype(np.float)
+
+            # Data normalization optiontemp_input = np.array(i[:-1]).astype(np.float)
+            if(self.normalize_data):
+                temp_input = self.normalize(np.array(i[:-1]).astype(np.float))
+                temp_target = self.normalize(np.array(i[-1:]).astype(np.float))
+            else:
+                if(self.encode):
+                    temp_input = np.array(self.encode_int(i[:-1])).astype(np.float)
+                else:
+                    temp_input = np.array(i[:-1]).astype(np.float)
+                temp_target = np.array(i[-1:]).astype(np.float)
             if len(inputs) == 0:
-                inputs = np.concatenate((temp_input, inputs), axis=0)
+                inputs = np.concatenate((temp_input.T, inputs), axis=0)
             else:
-                inputs = np.vstack((temp_input, inputs))
+                inputs = np.vstack((temp_input.T, inputs))    
             if len(targets) == 0:
-                targets = np.concatenate((np.array(i[-1:]).astype(np.float), targets), axis=0)
+                targets = np.concatenate((temp_target.T, targets), axis=0)
             else:
-                targets = np.vstack((np.array(i[-1:]).astype(np.float), targets))
+                targets = np.vstack((temp_target.T, targets))
+
         return (inputs, targets)
+
+    def encode_int(self, arr):
+        return list(map(lambda x: int("{0}{1}".format('{0:04b}'.format(int(arr[x])), '{0:04b}'.format(int(arr[x+1]))), 2), range(0, len(arr) - 1, 2)))
+
+    def normalize(self, arr):
+        return np.linalg.norm(arr, ord=1, axis=0, keepdims=True)
             
     def earlystopping(self,inputs,targets,valid,validtargets,eta,niterations=100):
     
@@ -134,8 +158,7 @@ class PokerHandANN():
         """ Train the thing """    
         # Add the inputs that match the bias node
         inputs = np.concatenate((inputs,-np.ones((self.ndata,1))),axis=1)
-        # change = range(self.ndata)
-    
+
         updatew1 = np.zeros((np.shape(self.weights1)))
         updatew2 = np.zeros((np.shape(self.weights2)))
             
@@ -165,10 +188,10 @@ class PokerHandANN():
             self.weights2 -= updatew2
                 
             # Randomise order of inputs (not necessary for matrix-based calculation)
-            #np.random.shuffle(change)
-            #inputs = inputs[change,:]
-            #targets = targets[change,:]
-            
+            if(self.randomize_data):
+                np.random.rand(inputs.shape[0]).argsort()
+                np.random.rand(targets.shape[0]).argsort()
+
     def mlpfwd(self,inputs):
         """ Run the network forward """
 
@@ -196,6 +219,10 @@ class PokerHandANN():
         inputs = np.concatenate((inputs,-np.ones((np.shape(inputs)[0],1))),axis=1)
         outputs = self.mlpfwd(inputs)
         
+        # np.set_printoptions(threshold=sys.maxsize)
+        # print(outputs)
+        print(len(outputs))
+
         nclasses = np.shape(targets)[1]
 
         if nclasses==1:
@@ -215,4 +242,4 @@ class PokerHandANN():
         print (cm)
         print ("Percentage Correct: ",np.trace(cm)/np.sum(cm)*100)
 
-# PokerHandANN()
+PokerHandANN(None, None)
