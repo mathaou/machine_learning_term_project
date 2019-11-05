@@ -26,9 +26,11 @@ class Hand():
             suit = "Clubs"
 
         rank = None
-        if self.rank > 9:
-            arr = ["Jack", "Queen", "King", "Ace"]
-            rank = arr[self.rank - 10]
+        if self.rank > 10:
+            arr = ["Jack", "Queen", "King"]
+            rank = arr[self.rank - 11]
+        elif(self.rank == 1):
+            rank = "Ace"
         else:
             rank = self.rank + 1
 

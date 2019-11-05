@@ -1,10 +1,11 @@
 #!/bin/python3
 
 # import hand_classifier as hand
+# import pandas as pd
+# import pickle
 
 import numpy as np
-import pandas as pd
-# import pickle
+import pylab as pl
 import os.path
 import random
 import sys
@@ -16,24 +17,26 @@ class PokerHandANN():
     targets = np.array([])
     testing = []
     validation = []
-    errors = {}
+    errors = []
+    valid_errors = []
 
     nhidden = 52
     beta = 1
     momentum = .9
     outtype = 'softmax'
-    w = .2
-    num_iterations = 1000
+    w = .1
+    num_iterations = 7500
 
     pickle_file_path = 'pkr_hnd.pkl'
 
     def __init__(self, hand, mqtt):
-        np.set_printoptions(threshold=sys.maxsize)
+        # np.set_printoptions(threshold=sys.maxsize)
         # files_exist = os.path.exists(self.pickle_file_path)
+        # TODO balance training data
         with open("poker-hand.data") as file:
             data = file.readlines()
             random.shuffle(data)
-            data = data[0:50000]
+            data = data[0:10000]
             # define splits
             testing_validation_split = int(len(data) * .2)
 
@@ -54,14 +57,9 @@ class PokerHandANN():
             # assigning inputs and targets with whats left (60%)
             (self.inputs, self.targets) = self.createInputsAndTargets(data[0:len(data) - testing_validation_split])
 
-            while self.targets is None:
-                random.shuffle(data)
-                data = data[0:50000]
-                (self.inputs, self.targets) = self.createInputsAndTargets(data[0:len(data) - testing_validation_split])
-
             print("Assigning inputs and targets for validation set...")
             # create validation
-            (validation_input, validation_target) = self.createInputsAndTargets(self.validation)
+            (self.validation_input, self.validation_target) = self.createInputsAndTargets(self.validation)
 
             self.nin = np.shape(self.inputs)[1]
             self.nout = np.shape(self.targets)[1]
@@ -74,16 +72,30 @@ class PokerHandANN():
             self.weights2 = (np.random.rand(self.nhidden+1,self.nout)-0.5)*2/np.sqrt(self.nhidden)
             
             print("Beginning training...")
-            self.mlptrain(self.inputs, self.targets, self.w, self.num_iterations)
+            # self.mlptrain(self.inputs, self.targets, self.w, self.num_iterations)
+
+            self.earlystopping(self.inputs, self.targets, self.validation_input, self.validation_target, self.w, self.num_iterations)
 
         print("Creating testing inputs and targets")
-        (testing_input, testing_targets) = self.createInputsAndTargets(self.testing)
+        (self.testing_input, self.testing_targets) = self.createInputsAndTargets(self.testing)
         
         print("Recall...")
-        self.confmat(testing_input, testing_targets)
+        self.confmat(self.testing_input, self.testing_targets)
 
+        # pl.plot(*zip(*self.valid_errors), 'b-', label='Validation Set Error')
+        pl.plot(*zip(*self.errors), 'g-', label='Validation Set Error')
+
+        pl.legend(loc='upper right')
+
+        pl.xlabel('Number of Iterations of {0}'.format(self.num_iterations))
+        pl.ylabel('% Error')
+
+        pl.show()
+
+    # This function creates the inputs and targets for us based on .csv string
     def createInputsAndTargets(self, input):
 
+        # inner function to handle encoding to binary digits.
         def encode(x, n):
             out = [0] * n
             try:
@@ -96,25 +108,35 @@ class PokerHandANN():
         targets = []
         print("Beginning input traversal...")
         v = 0
+        # for each line of input provided
         for line in input:
+            # split on comma
             l = line.split(",")
             
+            # target values are encoded to a list and appended to the containing list
             targets.extend(list(map(lambda x: encode(int(x[0]), 9), l[-1:])))
+
+            # the remainder of the list is converted to integers to make it easier in rest of encoding
             l = list(map(lambda x: int(x) - 1, l[:-1]))
             temp_input = []
             # print(l)
+
+            # every thousand iterations
             if v % 1000 == 0:
                 print("Iteration {0}/{1} complete...".format(v, len(input)))
             v += 1
+
+            # traverse list in groups of two to get suit/rank pairs
             for i in range(0, len(l), 2):
+                # temporary list is extended rather than appended in suit/rank format
                 temp_input.extend(encode(l[i], 4))   
                 temp_input.extend(encode(l[i+1], 13))
 
+            # then appended to containing list
             inputs.append(temp_input)
             temp_input = []
 
-        # print(np.array(inputs).shape)
-        # print(np.array(targets).shape)
+        # this counts how many of each type of class appears in targets
         dic = {}
         for elem in targets:
             for i in range(9):
@@ -124,10 +146,15 @@ class PokerHandANN():
 
         print(dic)
 
+        # converted to numpy arrays with high level of precision needed to succeed with exponentiation of softmax and logistic
         return (np.array(inputs, dtype=np.float64), np.array(targets, dtype=np.float64))
 
+    # textbook says the (input - mean)/(max-min)
     def normalize(self, arr):
-        return arr / (np.linalg.norm(arr) + 1e-16)
+        max = np.max(arr)
+        min = np.min(arr)
+        mean = np.mean(arr)
+        return np.vectorize(lambda x: (x - mean)/(max-min))(arr)
             
     def earlystopping(self,inputs,targets,valid,validtargets,eta,niterations=100):
     
@@ -138,13 +165,16 @@ class PokerHandANN():
         new_val_error = 100000
         
         count = 0
+        # TODO Implement randomization
         while (((old_val_error1 - new_val_error) > 0.001) or ((old_val_error2 - old_val_error1)>0.001)):
+            print("Total iterations of {0}: {1}".format(niterations, count))
             count+=1
             self.mlptrain(inputs,targets,eta,niterations)
             old_val_error2 = old_val_error1
             old_val_error1 = new_val_error
             validout = self.mlpfwd(valid)
             new_val_error = 0.5*np.sum((validtargets-validout)**2)
+            self.errors.append((count, new_val_error))
             
         print("Stopped", new_val_error,old_val_error1, old_val_error2)
         return new_val_error
@@ -163,7 +193,6 @@ class PokerHandANN():
 
             error = 0.5*np.sum((self.outputs-targets)**2) 
             if (np.mod(n,100)==0):
-                self.errors[n] = error
                 print ("Iteration: ",n, " Error: ",error)    
 
             # Different types of output neurons
