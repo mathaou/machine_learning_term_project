@@ -47,7 +47,7 @@ class HandClassifier():
             # print(card)
             self.hand.append(Hand(card))
             print(card.__str__())
-        # self.ann = network.PokerHandANN(self.hand, mqtt)
+        self.ann = network.PokerHandANN(self.hand, mqtt)
 
     def __str__(self):
         ret = "Hand contains: "

@@ -3,6 +3,7 @@
 # import hand_classifier as hand
 
 import numpy as np
+import pandas as pd
 # import pickle
 import os.path
 import random
@@ -15,16 +16,14 @@ class PokerHandANN():
     targets = np.array([])
     testing = []
     validation = []
+    errors = {}
 
-    nhidden = 15
+    nhidden = 52
     beta = 1
     momentum = .9
-    outtype = 'linear'
+    outtype = 'softmax'
     w = .2
     num_iterations = 1000
-    normalize_data = False
-    randomize_data = False
-    encode = False
 
     pickle_file_path = 'pkr_hnd.pkl'
 
@@ -33,10 +32,10 @@ class PokerHandANN():
         # files_exist = os.path.exists(self.pickle_file_path)
         with open("poker-hand.data") as file:
             data = file.readlines()
-            data = data[0:1000]
+            random.shuffle(data)
+            data = data[0:50000]
             # define splits
             testing_validation_split = int(len(data) * .2)
-            print(testing_validation_split)
 
             if mqtt is not None:
                 print("Sending status...")
@@ -55,6 +54,11 @@ class PokerHandANN():
             # assigning inputs and targets with whats left (60%)
             (self.inputs, self.targets) = self.createInputsAndTargets(data[0:len(data) - testing_validation_split])
 
+            while self.targets is None:
+                random.shuffle(data)
+                data = data[0:50000]
+                (self.inputs, self.targets) = self.createInputsAndTargets(data[0:len(data) - testing_validation_split])
+
             print("Assigning inputs and targets for validation set...")
             # create validation
             (validation_input, validation_target) = self.createInputsAndTargets(self.validation)
@@ -63,32 +67,15 @@ class PokerHandANN():
             self.nout = np.shape(self.targets)[1]
             self.ndata = np.shape(self.inputs)[0]
 
-            print(self.inputs)
+            # print(self.inputs)
         
             # Initialise network
             self.weights1 = (np.random.rand(self.nin+1,self.nhidden)-0.5)*2/np.sqrt(self.nin)
             self.weights2 = (np.random.rand(self.nhidden+1,self.nout)-0.5)*2/np.sqrt(self.nhidden)
             
-            # print("Splitting validation set...")
-            # # divy up validation
-            # self.validation = data[:-testing_validation_split]
-
-            # print("Assigning inputs and targets for the remaining 60% of data...")
-            # # assigning inputs and targets with whats left (60%)
-            # (self.inputs, self.targets) = self.createInputsAndTargets(data[0:len(data) - testing_validation_split])
-
-            # print("Assigning inputs and targets for validation set...")
-            # # create validation
-            # (validation_input, validation_target) = self.createInputsAndTargets(self.validation)
-
-            # possibly make random for repeated trainings
-            # data = random.sample(data, len(data))
             print("Beginning training...")
             self.mlptrain(self.inputs, self.targets, self.w, self.num_iterations)
 
-            print("Validation...")
-            self.confmat(validation_input, validation_target)
-        
         print("Creating testing inputs and targets")
         (testing_input, testing_targets) = self.createInputsAndTargets(self.testing)
         
@@ -96,42 +83,51 @@ class PokerHandANN():
         self.confmat(testing_input, testing_targets)
 
     def createInputsAndTargets(self, input):
+
+        def encode(x, n):
+            out = [0] * n
+            try:
+                out[x] = 1
+            except:
+                print(x)
+            return out
+        
         inputs = []
         targets = []
         print("Beginning input traversal...")
         v = 0
         for line in input:
+            l = line.split(",")
+            
+            targets.extend(list(map(lambda x: encode(int(x[0]), 9), l[-1:])))
+            l = list(map(lambda x: int(x) - 1, l[:-1]))
+            temp_input = []
+            # print(l)
             if v % 1000 == 0:
                 print("Iteration {0}/{1} complete...".format(v, len(input)))
             v += 1
-            i = line.split(",")
+            for i in range(0, len(l), 2):
+                temp_input.extend(encode(l[i], 4))   
+                temp_input.extend(encode(l[i+1], 13))
 
-            # Data normalization optiontemp_input = np.array(i[:-1]).astype(np.float)
-            if(self.normalize_data):
-                temp_input = self.normalize(np.array(i[:-1]).astype(np.float))
-                temp_target = self.normalize(np.array(i[-1:]).astype(np.float))
-            else:
-                if(self.encode):
-                    temp_input = np.array(self.encode_int(i[:-1])).astype(np.float)
-                else:
-                    temp_input = np.array(i[:-1]).astype(np.float)
-                temp_target = np.array(i[-1:]).astype(np.float)
-            if len(inputs) == 0:
-                inputs = np.concatenate((temp_input.T, inputs), axis=0)
-            else:
-                inputs = np.vstack((temp_input.T, inputs))    
-            if len(targets) == 0:
-                targets = np.concatenate((temp_target.T, targets), axis=0)
-            else:
-                targets = np.vstack((temp_target.T, targets))
+            inputs.append(temp_input)
+            temp_input = []
 
-        return (inputs, targets)
+        # print(np.array(inputs).shape)
+        # print(np.array(targets).shape)
+        dic = {}
+        for elem in targets:
+            for i in range(9):
+                if elem[i] == 1:
+                    key = str(i)
+                    dic[key] = dic.get(key, 0) + 1
 
-    def encode_int(self, arr):
-        return list(map(lambda x: int("{0}{1}".format('{0:04b}'.format(int(arr[x])), '{0:04b}'.format(int(arr[x+1]))), 2), range(0, len(arr) - 1, 2)))
+        print(dic)
+
+        return (np.array(inputs, dtype=np.float64), np.array(targets, dtype=np.float64))
 
     def normalize(self, arr):
-        return np.linalg.norm(arr, ord=1, axis=0, keepdims=True)
+        return arr / (np.linalg.norm(arr) + 1e-16)
             
     def earlystopping(self,inputs,targets,valid,validtargets,eta,niterations=100):
     
@@ -144,7 +140,6 @@ class PokerHandANN():
         count = 0
         while (((old_val_error1 - new_val_error) > 0.001) or ((old_val_error2 - old_val_error1)>0.001)):
             count+=1
-            print(count)
             self.mlptrain(inputs,targets,eta,niterations)
             old_val_error2 = old_val_error1
             old_val_error1 = new_val_error
@@ -168,6 +163,7 @@ class PokerHandANN():
 
             error = 0.5*np.sum((self.outputs-targets)**2) 
             if (np.mod(n,100)==0):
+                self.errors[n] = error
                 print ("Iteration: ",n, " Error: ",error)    
 
             # Different types of output neurons
@@ -186,11 +182,6 @@ class PokerHandANN():
             updatew2 = eta*(np.dot(np.transpose(self.hidden),deltao)) + self.momentum*updatew2 # 4.10
             self.weights1 -= updatew1
             self.weights2 -= updatew2
-                
-            # Randomise order of inputs (not necessary for matrix-based calculation)
-            if(self.randomize_data):
-                np.random.rand(inputs.shape[0]).argsort()
-                np.random.rand(targets.shape[0]).argsort()
 
     def mlpfwd(self,inputs):
         """ Run the network forward """
@@ -221,7 +212,6 @@ class PokerHandANN():
         
         # np.set_printoptions(threshold=sys.maxsize)
         # print(outputs)
-        print(len(outputs))
 
         nclasses = np.shape(targets)[1]
 
