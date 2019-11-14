@@ -20,12 +20,12 @@ class PokerHandANN():
     errors = []
     valid_errors = []
 
-    nhidden = 52
+    nhidden = 15
     beta = 1
     momentum = .9
     outtype = 'softmax'
-    w = .1
-    num_iterations = 7500
+    w = .2
+    num_iterations = 200
 
     pickle_file_path = 'pkr_hnd.pkl'
 
@@ -33,10 +33,11 @@ class PokerHandANN():
         # np.set_printoptions(threshold=sys.maxsize)
         # files_exist = os.path.exists(self.pickle_file_path)
         # TODO balance training data
-        with open("poker-hand.data") as file:
+        with open("poker-hand-test.data") as file:
             data = file.readlines()
             random.shuffle(data)
-            data = data[0:10000]
+            num_data = (41 * self.nhidden + (self.nhidden + 1) * 10)
+            data = data[0:num_data]
             # define splits
             testing_validation_split = int(len(data) * .2)
 
@@ -96,14 +97,21 @@ class PokerHandANN():
     def createInputsAndTargets(self, input):
 
         # inner function to handle encoding to binary digits.
-        def encode(x, n):
+        def encode_long(x, n):
             out = [0] * n
             try:
                 out[x] = 1
             except:
-                print(x)
+                pass
+                # print(x)
             return out
-        
+
+        def encode(n, x):
+            temp = "{0}".format('{0:04b}'.format(n))
+            ret = []
+            [ret.extend(list(x)) for x in temp]
+            return ret
+
         inputs = []
         targets = []
         print("Beginning input traversal...")
@@ -114,7 +122,7 @@ class PokerHandANN():
             l = line.split(",")
             
             # target values are encoded to a list and appended to the containing list
-            targets.extend(list(map(lambda x: encode(int(x[0]), 9), l[-1:])))
+            targets.extend(list(map(lambda x: encode_long(int(x[0]), 10), l[-1:])))
 
             # the remainder of the list is converted to integers to make it easier in rest of encoding
             l = list(map(lambda x: int(x) - 1, l[:-1]))
@@ -122,7 +130,7 @@ class PokerHandANN():
             # print(l)
 
             # every thousand iterations
-            if v % 1000 == 0:
+            if v % 10 == 0:
                 print("Iteration {0}/{1} complete...".format(v, len(input)))
             v += 1
 
@@ -131,7 +139,7 @@ class PokerHandANN():
                 # temporary list is extended rather than appended in suit/rank format
                 temp_input.extend(encode(l[i], 4))   
                 temp_input.extend(encode(l[i+1], 13))
-
+            # print(temp_input)
             # then appended to containing list
             inputs.append(temp_input)
             temp_input = []
@@ -165,6 +173,7 @@ class PokerHandANN():
         new_val_error = 100000
         
         count = 0
+        self.outputs = np.array([])
         # TODO Implement randomization
         while (((old_val_error1 - new_val_error) > 0.001) or ((old_val_error2 - old_val_error1)>0.001)):
             print("Total iterations of {0}: {1}".format(niterations, count))
@@ -186,13 +195,13 @@ class PokerHandANN():
 
         updatew1 = np.zeros((np.shape(self.weights1)))
         updatew2 = np.zeros((np.shape(self.weights2)))
-            
+
         for n in range(niterations):
-    
+            
             self.outputs = self.mlpfwd(inputs)
 
             error = 0.5*np.sum((self.outputs-targets)**2) 
-            if (np.mod(n,100)==0):
+            if (np.mod(n,10)==0):
                 print ("Iteration: ",n, " Error: ",error)    
 
             # Different types of output neurons
@@ -211,14 +220,13 @@ class PokerHandANN():
             updatew2 = eta*(np.dot(np.transpose(self.hidden),deltao)) + self.momentum*updatew2 # 4.10
             self.weights1 -= updatew1
             self.weights2 -= updatew2
-
+            
     def mlpfwd(self,inputs):
         """ Run the network forward """
 
         self.hidden = np.dot(inputs,self.weights1) # 4.4
         self.hidden = 1.0/(1.0+np.exp(-self.beta*self.hidden)) # 4.5
         self.hidden = np.concatenate((self.hidden,-np.ones((np.shape(inputs)[0],1))),axis=1) # bias node
-
         outputs = np.dot(self.hidden, self.weights2) # 4.6
 
         # Different types of output neurons

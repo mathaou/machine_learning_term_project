@@ -194,10 +194,12 @@ html(lang='en')
 
         const rank_name = (r) => {
             if (r === undefined) return null;
-            if (r.value < 10){
-                return parseInt(r.value) + 1;
+            if (r.value == 1){
+                return "A";
+            } else if (r.value <= 10){
+                return parseInt(r.value);
             } else {
-                return ["J", "Q", "K", "A"][r.value - 10]
+                return ["J", "Q", "K"][r.value - 11];
             }
         };
 

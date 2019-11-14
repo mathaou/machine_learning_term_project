@@ -56,7 +56,8 @@ class MQTTBroker():
 
         """Any data destined for host from client node"""
         if(msg.topic == self.server_in):
-            self.classifier = hand.HandClassifier(mqtt = client, payload = payload)
+            print("ASS")
+            # self.classifier = hand.HandClassifier(mqtt = client, payload = payload)
             self.mqtt.publish(self.client_out, self.classifier.__str__())
 
     """On connect handler gets called upon a connection request"""
@@ -80,8 +81,4 @@ class MQTTBroker():
         for x in self.subscription_list:
             self.mqtt.subscribe(x)
 
-def main():
-    MQTTBroker()
-
-if __name__ == "__main__":
-    main()
+MQTTBroker()
