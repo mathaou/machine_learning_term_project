@@ -20,26 +20,26 @@ class PokerHandANN():
     errors = []
     valid_errors = []
 
-    nhidden = 15
+    nhidden = 22
     beta = 1
     momentum = .9
     outtype = 'softmax'
-    w = .2
-    num_iterations = 200
+    w = .3100
+    num_iterations = 100
 
     pickle_file_path = 'pkr_hnd.pkl'
 
     def __init__(self, hand, mqtt):
         # np.set_printoptions(threshold=sys.maxsize)
         # files_exist = os.path.exists(self.pickle_file_path)
-        # TODO balance training data
+        # TODO balance training self.data
         with open("poker-hand-test.data") as file:
-            data = file.readlines()
-            random.shuffle(data)
+            self.data = file.readlines()
+            random.shuffle(self.data)
             num_data = (41 * self.nhidden + (self.nhidden + 1) * 10)
-            data = data[0:num_data]
+            self.data = self.data[:num_data]
             # define splits
-            testing_validation_split = int(len(data) * .2)
+            self.testing_validation_split = int(len(self.data) * .2)
 
             if mqtt is not None:
                 print("Sending status...")
@@ -47,16 +47,16 @@ class PokerHandANN():
 
             print("Splitting testing set...")
             # divy up testing
-            self.testing = data[:-testing_validation_split]
-            data = data[:-testing_validation_split or None]
+            self.testing = self.data[:-self.testing_validation_split]
+            self.data = self.data[:-self.testing_validation_split or None]
 
             print("Splitting validation set...")
             # divy up validation
-            self.validation = data[:-testing_validation_split]
+            self.validation = self.data[:-self.testing_validation_split]
 
-            print("Assigning inputs and targets for the remaining 60% of data...")
+            print("Assigning inputs and targets for the remaining 60% of self.data...")
             # assigning inputs and targets with whats left (60%)
-            (self.inputs, self.targets) = self.createInputsAndTargets(data[0:len(data) - testing_validation_split])
+            (self.inputs, self.targets) = self.createInputsAndTargets(self.data[0:len(self.data) - self.testing_validation_split])
 
             print("Assigning inputs and targets for validation set...")
             # create validation
@@ -165,24 +165,32 @@ class PokerHandANN():
         return np.vectorize(lambda x: (x - mean)/(max-min))(arr)
             
     def earlystopping(self,inputs,targets,valid,validtargets,eta,niterations=100):
-    
-        valid = np.concatenate((valid,-np.ones((np.shape(valid)[0],1))),axis=1)
-        
         old_val_error1 = 100002
         old_val_error2 = 100001
         new_val_error = 100000
         
         count = 0
         self.outputs = np.array([])
+        self.inputs = inputs
+        self.targets = targets
+        self.valid = np.concatenate((valid,-np.ones((np.shape(valid)[0],1))),axis=1)
         # TODO Implement randomization
         while (((old_val_error1 - new_val_error) > 0.001) or ((old_val_error2 - old_val_error1)>0.001)):
             print("Total iterations of {0}: {1}".format(niterations, count))
             count+=1
-            self.mlptrain(inputs,targets,eta,niterations)
+            self.mlptrain(self.inputs, self.targets, eta, niterations)
             old_val_error2 = old_val_error1
             old_val_error1 = new_val_error
-            validout = self.mlpfwd(valid)
-            new_val_error = 0.5*np.sum((validtargets-validout)**2)
+            self.validation_input = np.concatenate((self.validation_input,-np.ones((np.shape(self.validation_input)[0],1))),axis=1)
+            validout = self.mlpfwd(self.validation_input)
+            new_val_error = 0.5*np.sum((self.validation_target-validout)**2)
+
+            # comment this
+            random.shuffle(self.data)
+            self.valid = self.data[:-self.testing_validation_split]
+            (self.inputs, self.targets) = self.createInputsAndTargets(self.data[:len(self.data) - self.testing_validation_split])
+            (self.validation_input, self.validation_target) = self.createInputsAndTargets(self.valid)
+
             self.errors.append((count, new_val_error))
             
         print("Stopped", new_val_error,old_val_error1, old_val_error2)
