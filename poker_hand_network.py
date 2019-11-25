@@ -2,15 +2,20 @@
 
 # import hand_classifier as hand
 # import pandas as pd
-# import pickle
+import paho.mqtt.client as MQTT
+import time
+import json
+import pickle
 
+import traceback
+import re
 import numpy as np
 import pylab as pl
 import os.path
 import random
 import sys
 
-class PokerHandANN():
+class PokerHandANN(object):
     # remember the .6:.2:.2 split for testing/training/validation
     # need to compile all the lines into one file and then go from there
     inputs = np.array([])
@@ -24,26 +29,22 @@ class PokerHandANN():
     beta = 1
     momentum = .9
     outtype = 'softmax'
-    w = .3100
-    num_iterations = 100
+    w = .3
+    num_iterations = 200
 
-    pickle_file_path = 'pkr_hnd.pkl'
-
-    def __init__(self, hand, mqtt):
+    def __init__(self, nhidden):
         # np.set_printoptions(threshold=sys.maxsize)
-        # files_exist = os.path.exists(self.pickle_file_path)
         # TODO balance training self.data
         with open("poker-hand-test.data") as file:
+            self.errors = []
+            self.valid_errors = []
+            self.nhidden = nhidden
             self.data = file.readlines()
             random.shuffle(self.data)
-            num_data = (41 * self.nhidden + (self.nhidden + 1) * 10)
-            self.data = self.data[:num_data]
+            self.num_data = (41 * self.nhidden + (self.nhidden + 1) * 10)
+            self.data = self.data[:self.num_data]
             # define splits
             self.testing_validation_split = int(len(self.data) * .2)
-
-            if mqtt is not None:
-                print("Sending status...")
-                mqtt.publish("hand/client", "Initializing network...")
 
             print("Splitting testing set...")
             # divy up testing
@@ -77,41 +78,10 @@ class PokerHandANN():
 
             self.earlystopping(self.inputs, self.targets, self.validation_input, self.validation_target, self.w, self.num_iterations)
 
-        print("Creating testing inputs and targets")
-        (self.testing_input, self.testing_targets) = self.createInputsAndTargets(self.testing)
-        
-        print("Recall...")
-        self.confmat(self.testing_input, self.testing_targets)
-
         # pl.plot(*zip(*self.valid_errors), 'b-', label='Validation Set Error')
-        pl.plot(*zip(*self.errors), 'g-', label='Validation Set Error')
-
-        pl.legend(loc='upper right')
-
-        pl.xlabel('Number of Iterations of {0}'.format(self.num_iterations))
-        pl.ylabel('% Error')
-
-        pl.show()
 
     # This function creates the inputs and targets for us based on .csv string
     def createInputsAndTargets(self, input):
-
-        # inner function to handle encoding to binary digits.
-        def encode_long(x, n):
-            out = [0] * n
-            try:
-                out[x] = 1
-            except:
-                pass
-                # print(x)
-            return out
-
-        def encode(n, x):
-            temp = "{0}".format('{0:04b}'.format(n))
-            ret = []
-            [ret.extend(list(x)) for x in temp]
-            return ret
-
         inputs = []
         targets = []
         print("Beginning input traversal...")
@@ -122,6 +92,7 @@ class PokerHandANN():
             l = line.split(",")
             
             # target values are encoded to a list and appended to the containing list
+            # print(l)
             targets.extend(list(map(lambda x: encode_long(int(x[0]), 10), l[-1:])))
 
             # the remainder of the list is converted to integers to make it easier in rest of encoding
@@ -147,12 +118,13 @@ class PokerHandANN():
         # this counts how many of each type of class appears in targets
         dic = {}
         for elem in targets:
-            for i in range(9):
+            for i in range(10):
                 if elem[i] == 1:
                     key = str(i)
                     dic[key] = dic.get(key, 0) + 1
 
         print(dic)
+        # print(inputs[0])
 
         # converted to numpy arrays with high level of precision needed to succeed with exponentiation of softmax and logistic
         return (np.array(inputs, dtype=np.float64), np.array(targets, dtype=np.float64))
@@ -173,7 +145,8 @@ class PokerHandANN():
         self.outputs = np.array([])
         self.inputs = inputs
         self.targets = targets
-        self.valid = np.concatenate((valid,-np.ones((np.shape(valid)[0],1))),axis=1)
+        valid = np.concatenate((valid,-np.ones((np.shape(valid)[0],1))),axis=1)
+        new_data = np.array_split(self.data, 10)
         # TODO Implement randomization
         while (((old_val_error1 - new_val_error) > 0.001) or ((old_val_error2 - old_val_error1)>0.001)):
             print("Total iterations of {0}: {1}".format(niterations, count))
@@ -181,15 +154,31 @@ class PokerHandANN():
             self.mlptrain(self.inputs, self.targets, eta, niterations)
             old_val_error2 = old_val_error1
             old_val_error1 = new_val_error
-            self.validation_input = np.concatenate((self.validation_input,-np.ones((np.shape(self.validation_input)[0],1))),axis=1)
-            validout = self.mlpfwd(self.validation_input)
-            new_val_error = 0.5*np.sum((self.validation_target-validout)**2)
+            validout = self.mlpfwd(valid)
+            new_val_error = 0.5*np.sum((validtargets-validout)**2)
 
-            # comment this
+            # # comment this
+            # val = random.randint(0, 9)
+            # # print("Validation input: {0}".format(new_data[val]))
+            # (valid, validtargets) = self.createInputsAndTargets(new_data[val])
+            # temp = new_data[val]
+            # new_data.pop(val)
+            # # print("INPUTS: {0}".format(new_data))
+            # t = np.concatenate(new_data).ravel()
+            # # print(t)
+            # (self.inputs, self.targets) = self.createInputsAndTargets(t)
+            # valid = np.concatenate((valid,-np.ones((np.shape(valid)[0],1))),axis=1)
+            # # print("INPUTS: {0}".format(self.inputs))
+            # new_data.append(temp)
+            # random.shuffle(new_data)
+
+            # other way
+
             random.shuffle(self.data)
-            self.valid = self.data[:-self.testing_validation_split]
+            valid = self.data[:-self.testing_validation_split]
             (self.inputs, self.targets) = self.createInputsAndTargets(self.data[:len(self.data) - self.testing_validation_split])
-            (self.validation_input, self.validation_target) = self.createInputsAndTargets(self.valid)
+            (valid, validtargets) = self.createInputsAndTargets(valid)
+            valid = np.concatenate((valid,-np.ones((np.shape(valid)[0],1))),axis=1)
 
             self.errors.append((count, new_val_error))
             
@@ -199,6 +188,7 @@ class PokerHandANN():
     def mlptrain(self,inputs,targets,eta,niterations):
         """ Train the thing """    
         # Add the inputs that match the bias node
+        self.ndata = len(inputs)
         inputs = np.concatenate((inputs,-np.ones((self.ndata,1))),axis=1)
 
         updatew1 = np.zeros((np.shape(self.weights1)))
@@ -256,7 +246,7 @@ class PokerHandANN():
         outputs = self.mlpfwd(inputs)
         
         # np.set_printoptions(threshold=sys.maxsize)
-        # print(outputs)
+        print(outputs)
 
         nclasses = np.shape(targets)[1]
 
@@ -276,5 +266,193 @@ class PokerHandANN():
         print ("Confusion matrix is:")
         print (cm)
         print ("Percentage Correct: ",np.trace(cm)/np.sum(cm)*100)
+        return np.trace(cm)/np.sum(cm)*100
 
-PokerHandANN(None, None)
+pickle_file_path = 'pkr_hand_86.pkl'
+
+"""
+0, 8 // 8 heart
+1, 10 // 10 spade
+1, 12 // queen spade
+3, 11 // jack club
+2, 4 // 4 diamond
+
+"""
+
+def encode_long(x, n):
+    out = [0] * n
+    try:
+        out[x] = 1
+    except:
+        pass
+        # print(x)
+    print(out)
+    return out
+
+def encode(n, x):
+    # print(n)
+    temp = "{0}".format('{0:04b}'.format(n))
+    # print(temp)
+    ret = []
+    [ret.extend(list(x)) for x in temp]
+    # print(ret)
+    return ret
+
+def output_result(arr):
+    arr = np.concatenate((arr,-np.ones((np.shape(arr)[0],1))),axis=1)
+    obj_file = get_pickle()
+    fwd = obj_file.mlpfwd(arr)
+    results = fwd[0]
+    res = {}
+    res2 = {}
+    resultsSort = results.argsort()[-5:][::-1]
+    for i in resultsSort:
+        res[i] = results[i]
+        
+    return res
+
+def get_pickle():
+    f = open(pickle_file_path, "rb")
+    obj_file = pickle.load(f)
+    f.close()
+    return obj_file
+
+def calc_final_error(o):
+    print("Creating testing inputs and targets")
+    (o.testing_input, o.testing_targets) = o.createInputsAndTargets(o.testing)
+    
+    print("Recall...")
+    return o.confmat(o.testing_input, o.testing_targets)
+
+def get_output(ti):
+    with open("poker-hand-test.data") as file:
+        lines = file.readlines()
+
+        found = False
+        for line in lines:
+            for i in range(10):
+                temp = "{0},{1}".format(ti, i)
+                if temp in line:
+                    ti = temp
+                    found = True
+                    break
+        if not found:
+            ti = "{0},{1}".format(ti, 0)  
+        file.close()
+
+    t = get_pickle().createInputsAndTargets([ti])
+
+    test_input = t[0]
+    test_target = t[1]
+
+    print(test_input)
+    print(test_target)
+
+    output = {}
+
+    output["result"] = output_result(test_input)
+    output["expected"] = list(np.where(test_target[0] == 1)[0])[0]
+
+    print(output)
+
+    return output
+
+def run():
+    nhidden = 22
+    arr = []
+    for i in range(10):
+        temp = None
+        temp = PokerHandANN(nhidden)
+
+        err = calc_final_error(temp)
+        if(err > 80):
+            arr.append(temp.valid_errors)
+            file_handler = open("{0}_{1}_{2}.pkl".format(pickle_file_path, nhidden, err), "wb")
+            pickle.dump(temp, file_handler)
+            file_handler.close()
+
+    f, axes = pl.subplots(len(arr[0]), 1)
+
+    for x in range(len(arr)):
+        for i in range(len(arr[x])):
+            axes[i].plot(arr[x][i], label='Validation Set Error')
+
+    pl.legend(loc='upper right')
+
+    pl.xlabel('Number of Iterations of {0}'.format(50))
+    pl.ylabel('% Error')
+
+    pl.show()
+
+class MQTTBroker():
+
+    """Used as placeholders for all the devices."""
+
+    mqtt = None
+
+    server_in = "hand/server"
+    client_out = "hand/client"
+
+    """Location of mqtt broker."""
+    broker_url = "localhost"
+    broker_port = 1883
+
+    subscription_list = [server_in]
+
+    """Initialization of the server."""
+    def __init__(self):
+
+        self.mqtt = MQTT.Client("server")
+
+        self.link_handlers()
+
+        self.mqtt.connect(self.broker_url, self.broker_port)
+
+        self.subcribe_to_list()
+
+        self.handle_loop()
+
+    """Handles all of the linking for mqtt method handlers"""
+    def link_handlers(self):
+        self.mqtt.on_connect = self.on_connect
+        self.mqtt.on_disconnect = self.on_disconnect
+        self.mqtt.on_log = self.on_log
+        self.mqtt.on_message = self.on_message
+
+    def handle_loop(self):
+        while True:
+            self.mqtt.loop(.1, 64)
+
+    """On message handler gets called anytime self.mqtt recieves a subscription"""
+    def on_message(self, client, userdata, msg):
+        payload = str(msg.payload.decode("utf-8"))
+        print("{}: {}".format(msg.topic, payload))
+
+        """Any data destined for host from client node"""
+        if(msg.topic == self.server_in):
+            self.mqtt.publish(self.client_out, str(get_output(payload)))
+
+    """On connect handler gets called upon a connection request"""
+    def on_connect(self, client, userdata, flags, rc):
+        if rc == 0:
+            client.publish(self.client_out, b'Connect')
+            print("Established connection...")
+        else:
+            print("No connection established, returned error code {}...".format(rc))
+
+    """On disconnect handler gets called upon a disconnect request"""
+    def on_disconnect(self, client, userdata, flags, rc = 0):
+        print("Disconnected with result code {}".format(rc))
+
+    """Logs any error messages, kind of annoyting because it doesn't provide any information about WHERE the error came from but prevents outright crash"""
+    def on_log(self, client, userdata, level, buf):
+        print("LOG: {}".format(buf))
+
+    """Helper method to just subscribe to any topic inside of a list"""
+    def subcribe_to_list(self):
+        for x in self.subscription_list:
+            self.mqtt.subscribe(x)
+
+# MQTTBroker()
+
+# run()

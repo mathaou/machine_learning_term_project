@@ -38,17 +38,8 @@ wss.on('connection', (ws) => {
 });
 
 app.post('/hand', (req, res) => {
-    input = {
-        "hand":[
-            [req.body.card1, req.body.card1Suit],
-            [req.body.card2, req.body.card2Suit],
-            [req.body.card3, req.body.card3Suit],
-            [req.body.card4, req.body.card4Suit],
-            [req.body.card5, req.body.card5Suit]
-        ]
-    };
-
-    output = queryNetwork(input);
+    output = queryNetwork(
+        `${req.body.card1},${req.body.card1Suit},${req.body.card2},${req.body.card2Suit},${req.body.card3},${req.body.card3Suit},${req.body.card4},${req.body.card4Suit},${req.body.card5},${req.body.card5Suit}`);
     res.redirect('/');
 });
 
@@ -62,18 +53,18 @@ const queryNetwork = (payload) => {
     if (client === null) {
         console.log("error initializing mqtt client...");
     } else {
-        client.publish(server_out, JSON.stringify(payload));
+        client.publish(server_out, payload);
     }
 };
 
 let main = () => {
     client = mqtt.connect(BROKERURL, {"clientId": "client", "port": BROKERPORT, "protocol": "MQTT"});
     client.on("message", (topic, message) => {
-        console.log(Buffer.from(message).toString())
+        // console.log(Buffer.from(message).toString())
         output = message;
         wss.clients.forEach((c) => {
             if(c != ws){
-                console.log(Buffer.from(message).toString());
+                // console.log(Buffer.from(message).toString());
                 c.send(Buffer.from(message).toString());
             }
         });

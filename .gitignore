@@ -1,3 +1,5 @@
 node_modules
 __pycache__
 package-lock.json
+*.png
+pkr_hnd_long_train_*.pkl
