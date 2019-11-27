@@ -3,6 +3,7 @@
 }
 
 .output-text {
+    white-space: pre-wrap;
     font-size: 3vh;
 }
 

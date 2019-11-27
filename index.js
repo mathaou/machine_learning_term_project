@@ -33,13 +33,13 @@ const WebSocketServer = require('ws').Server;
 wss = new WebSocketServer({port: 40510});
 wss.on('connection', (ws) => {
     ws.on('message', (message) => {
-        ws.send(message);
+        ws.send(JSON.stringify(message));
     });
 });
 
 app.post('/hand', (req, res) => {
     output = queryNetwork(
-        `${req.body.card1},${req.body.card1Suit},${req.body.card2},${req.body.card2Suit},${req.body.card3},${req.body.card3Suit},${req.body.card4},${req.body.card4Suit},${req.body.card5},${req.body.card5Suit}`);
+        `${req.body.card1},${req.body.card1Suit | 4},${req.body.card2},${req.body.card2Suit | 4},${req.body.card3},${req.body.card3Suit | 4},${req.body.card4},${req.body.card4Suit | 4},${req.body.card5},${req.body.card5Suit | 4}`);
     res.redirect('/');
 });
 
@@ -61,13 +61,40 @@ let main = () => {
     client = mqtt.connect(BROKERURL, {"clientId": "client", "port": BROKERPORT, "protocol": "MQTT"});
     client.on("message", (topic, message) => {
         // console.log(Buffer.from(message).toString())
-        output = message;
-        wss.clients.forEach((c) => {
-            if(c != ws){
-                // console.log(Buffer.from(message).toString());
-                c.send(Buffer.from(message).toString());
+        if(message != "Connect") {
+            let ev = JSON.parse(message);
+            let dic = {
+                0: "Nothing in hand; not a recognized poker hand",
+                1: "One pair; one pair of equal ranks within five cards",
+                2: "Two pairs; two pairs of equal ranks within five cards",
+                3: "Three of a kind; three equal ranks within five cards",
+                4: "Straight; five cards, sequentially ranked with no gaps",
+                5: "Flush; five cards with the same suit",
+                6: "Full house; pair + different rank three of a kind",
+                7: "Four of a kind; four equal ranks within five cards",
+                8: "Straight flush; straight + flush",
+                9: "Royal flush; {Ace, King, Queen, Jack, Ten} + flush"
+            };
+            let res = "The top 5 results from our network were...\n\n";
+            let i = 1
+            
+            ev['result'].forEach((element, index, array) => {
+                res += `${i}: ${dic[element.classifier]}\n\tProbability: ${element.error}\n`;
+                i++;
+            });
+            if(ev['expected'] != 0){
+                res += `\nDid we get it right?\n\nExpected: ${dic[ev['expected']]}`;
+            } else {
+                res += `\nDid we get it right?`;
             }
-        });
+            output = res;
+            wss.clients.forEach((c) => {
+                if(c != ws){
+                    c.send(res);
+                }
+            });
+            // output = 'Select a hand and see how accurate our algorithm is!';
+        }
     });
 
     linkHandlers();

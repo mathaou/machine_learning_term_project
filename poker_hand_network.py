@@ -304,10 +304,9 @@ def output_result(arr):
     fwd = obj_file.mlpfwd(arr)
     results = fwd[0]
     res = {}
-    res2 = {}
     resultsSort = results.argsort()[-5:][::-1]
     for i in resultsSort:
-        res[i] = results[i]
+        res["{0}".format(int(i))] = float(results[i])
         
     return res
 
@@ -350,12 +349,30 @@ def get_output(ti):
 
     output = {}
 
-    output["result"] = output_result(test_input)
-    output["expected"] = list(np.where(test_target[0] == 1)[0])[0]
+    output["result"] = []
+    o = output_result(test_input)
+    for key in o:
+        output['result'].append({"classifier": key, "error": o[key]})
+    output["expected"] = int(list(np.where(test_target[0] == 1)[0])[0])
 
     print(output)
 
-    return output
+    dic = {
+        0: "Nothing in hand; not a recognized poker hand",
+        1: "One pair; one pair of equal ranks within five cards",
+        2: "Two pairs; two pairs of equal ranks within five cards",
+        3: "Three of a kind; three equal ranks within five cards",
+        4: "Straight; five cards, sequentially ranked with no gaps",
+        5: "Flush; five cards with the same suit",
+        6: "Full house; pair + different rank three of a kind",
+        7: "Four of a kind; four equal ranks within five cards",
+        8: "Straight flush; straight + flush",
+        9: "Royal flush; {Ace, King, Queen, Jack, Ten} + flush"
+    }
+
+    final = ""
+
+    return json.dumps(output)
 
 def run():
     nhidden = 22
@@ -453,6 +470,6 @@ class MQTTBroker():
         for x in self.subscription_list:
             self.mqtt.subscribe(x)
 
-# MQTTBroker()
+MQTTBroker()
 
 # run()

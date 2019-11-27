@@ -226,7 +226,7 @@ html(lang='en')
             //-     ws.send('connected');
             //- };  // event emmited when receiving message 
             ws.onmessage = (ev) => {
-                console.log(JSON.stringify(ev));
-                $(".output-text").prop('text', JSON.stringify(ev['data']));
+                $(".output-text").prop('text', ev);
+                location.reload();
             };
         });
